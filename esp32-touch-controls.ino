@@ -51,8 +51,10 @@ void setup()
   touchutilAddButton(2, 740, 450, 120, 60, "Next", framebuffer);*/
 
   // Draw list box
-  char *elements[10] = {"DL-11111111111111", "DL-11111111111112", "DL-11111111111113"};
-  touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", framebuffer, elements, 3);
+  char *elements[10] = {"DL-11111111111111", "DL-11111111111112", "DL-11111111111113", "DL-11111111111114", "DL-11111111111115",
+                        "DL-11111111111116", "DL-11111111111117", "DL-11111111111118", "DL-11111111111119", "DL-11111111111120"};
+  //char *elements[10] = {"DL-11111111111111", "DL-11111111111112", "DL-11111111111113"};
+  touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", framebuffer, elements, 10);
 
   epd_draw_grayscale_image(epd_full_screen(), framebuffer);
   epd_poweroff();
@@ -62,6 +64,7 @@ void loop()
 {
   uint16_t  x, y;
   if (digitalRead(TOUCH_INT)) {
+    touchutilCheckTouch();
     ButtonData buttonData;
     if (touchutilGetPressedButton(&buttonData)) {
       // button found -> buttonData is filled

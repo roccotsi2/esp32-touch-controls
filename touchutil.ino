@@ -2,23 +2,49 @@ ButtonData buttons[10];
 ListBoxData listBoxes[10];
 int countButtons = 0;
 int countListBoxes = 0;
+ButtonData lastPressedButton;
+bool buttonPressed = false;
 
 const byte WIDTH_LIST_BOX_UP_DOWN_BUTTON = 50;
 const byte HEIGHT_LIST_BOX_UP_DOWN_BUTTON = 50;
 const int HEIGHT_LIST_BOX_ELEMENT = 60;
+const int ID_LIST_BOX_BUTTON_UP = 200;
+const int ID_LIST_BOX_BUTTON_DOWN = 201;
+const int ID_LIST_BOX_FIRST_ITEM_BUTTON = 100;
 
 void touchutilAddListBox(int id, int x, int y, int width, int height, char *text, uint8_t *framebuffer, char *elements[10], int elementCount) {
   // add 1 button per displayed element
   int elementsPerPage = min(height / HEIGHT_LIST_BOX_ELEMENT, elementCount);
+  int elementHeight = height / elementsPerPage;
+  int adaptedHeight = elementsPerPage * elementHeight; // adapt the height to the number of elements
   for (int i = 0; i < elementsPerPage; i++) {
-    touchutilAddButton(100 + i, x, y + i*HEIGHT_LIST_BOX_ELEMENT, width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_ELEMENT, elements[i], framebuffer);
+    touchutilAddButton(ID_LIST_BOX_FIRST_ITEM_BUTTON + i, x, y + i*elementHeight, width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, elementHeight, elements[i], framebuffer);
   }
 
   // add border, up/down buttons
-  epd_draw_rect(x, y, width, height, 0, framebuffer);
-  epd_draw_rect(x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, height, 0, framebuffer);
-  touchutilAddButton(200, x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "^", framebuffer);
-  touchutilAddButton(201, x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y + height - HEIGHT_LIST_BOX_UP_DOWN_BUTTON, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "v", framebuffer);
+  epd_draw_rect(x, y, width, adaptedHeight, 0, framebuffer);
+  epd_draw_rect(x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, adaptedHeight, 0, framebuffer);
+  touchutilAddButton(ID_LIST_BOX_BUTTON_UP, x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "^", framebuffer);
+  touchutilAddButton(ID_LIST_BOX_BUTTON_DOWN, x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y + adaptedHeight - HEIGHT_LIST_BOX_UP_DOWN_BUTTON, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "v", framebuffer);
+}
+
+void checkListBoxButtons() {
+  if (buttonPressed) {
+    if (lastPressedButton.id == ID_LIST_BOX_BUTTON_UP) {
+      // button UP pressed
+      Serial.println("ListBox button pressed: UP");
+      buttonPressed = false;
+    } else if (lastPressedButton.id == ID_LIST_BOX_BUTTON_DOWN) {
+      // button DOWN pressed
+      Serial.println("ListBox button pressed: DOWN");
+      buttonPressed = false;
+    } else if (lastPressedButton.id >= ID_LIST_BOX_FIRST_ITEM_BUTTON) {
+      // item button pressed
+      Serial.print("ListBox item pressed: ");
+      Serial.println(lastPressedButton.text);
+      buttonPressed = false;
+    }
+  }
 }
 
 void touchutilAddButton(int id, int x, int y, int width, int height, char *text, uint8_t *framebuffer) {
@@ -53,7 +79,10 @@ bool touchutilRegisterButton(int id, int x, int y, int width, int height, char *
   return true;
 }
 
-bool touchutilGetPressedButton(ButtonData *pressedButtonData) {
+void touchutilCheckTouch() {
+  buttonPressed = false; // reset
+
+  // check for pressed button
   if (touch.scanPoint()) {
     uint16_t  x, y;
     touch.getPoint(x, y, 0);
@@ -65,12 +94,24 @@ bool touchutilGetPressedButton(ButtonData *pressedButtonData) {
         touchutilWaitUntilNoPress();
 
         // fill the found pressed button
-        pressedButtonData->id = buttonData.id;
-        pressedButtonData->area = buttonData.area;
-        pressedButtonData->text = buttonData.text;
-        return true;
+        lastPressedButton.id = buttonData.id;
+        lastPressedButton.area = buttonData.area;
+        lastPressedButton.text = buttonData.text;
+        buttonPressed = true;
       }
     }
+  }
+
+  checkListBoxButtons();
+}
+
+bool touchutilGetPressedButton(ButtonData *pressedButtonData) {
+  if (buttonPressed) {
+    pressedButtonData->id = lastPressedButton.id;
+    pressedButtonData->area = lastPressedButton.area;
+    pressedButtonData->text = lastPressedButton.text;
+    buttonPressed = false; // reset
+    return true; // button found
   }
   return false; // no button found
 }
