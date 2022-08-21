@@ -44,15 +44,15 @@ void setup()
 
   epd_poweron();
   epd_clear();
-  write_string((GFXfont *)&FiraSans, "Test", &cursor_x, &cursor_y, framebuffer);
+  //write_string((GFXfont *)&FiraSans, "Test", &cursor_x, &cursor_y, framebuffer);
 
   /*//Draw buttons
   touchutilAddButton(1, 600, 450, 120, 60, "Prev", framebuffer);
   touchutilAddButton(2, 740, 450, 120, 60, "Next", framebuffer);*/
 
   // Draw list box
-  char *elements[10] = {"DL-11111111111111", "DL-11111111111112", "DL-11111111111113", "DL-11111111111114"};
-  touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", framebuffer, elements, 4);
+  char *elements[10] = {"DL-11111111111111", "DL-11111111111112", "DL-11111111111113"};
+  touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", framebuffer, elements, 3);
 
   epd_draw_grayscale_image(epd_full_screen(), framebuffer);
   epd_poweroff();

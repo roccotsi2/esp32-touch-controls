@@ -3,18 +3,19 @@ ListBoxData listBoxes[10];
 int countButtons = 0;
 int countListBoxes = 0;
 
-const byte MIN_HEIGHT_LIST_BOX_BUTTON = 60;
 const byte WIDTH_LIST_BOX_UP_DOWN_BUTTON = 50;
 const byte HEIGHT_LIST_BOX_UP_DOWN_BUTTON = 50;
+const int HEIGHT_LIST_BOX_ELEMENT = 60;
 
 void touchutilAddListBox(int id, int x, int y, int width, int height, char *text, uint8_t *framebuffer, char *elements[10], int elementCount) {
   // add 1 button per displayed element
-  int heightButtons = height / elementCount;
-  for (int i = 0; i < elementCount; i++) {
-    touchutilAddButton(100 + i, x, y + i*heightButtons, width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, heightButtons, elements[i], framebuffer);
+  int elementsPerPage = min(height / HEIGHT_LIST_BOX_ELEMENT, elementCount);
+  for (int i = 0; i < elementsPerPage; i++) {
+    touchutilAddButton(100 + i, x, y + i*HEIGHT_LIST_BOX_ELEMENT, width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_ELEMENT, elements[i], framebuffer);
   }
 
   // add border, up/down buttons
+  epd_draw_rect(x, y, width, height, 0, framebuffer);
   epd_draw_rect(x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, height, 0, framebuffer);
   touchutilAddButton(200, x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "^", framebuffer);
   touchutilAddButton(201, x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y + height - HEIGHT_LIST_BOX_UP_DOWN_BUTTON, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "v", framebuffer);
