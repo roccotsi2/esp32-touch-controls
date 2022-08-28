@@ -29,16 +29,16 @@ void setup()
   Wire.begin(15, 14);
 
   if (!touch.begin()) {
-      Serial.println("start touchscreen failed");
-      while (1);
+    Serial.println("start touchscreen failed");
+    while (1);
   }
   Serial.println("Started Touchscreen poll...");
 
 
   framebuffer = (uint8_t *)ps_calloc(sizeof(uint8_t), EPD_WIDTH * EPD_HEIGHT / 2);
   if (!framebuffer) {
-      Serial.println("alloc memory failed !!!");
-      while (1);
+    Serial.println("alloc memory failed !!!");
+    while (1);
   }
   memset(framebuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2);
 
@@ -47,12 +47,14 @@ void setup()
   //write_string((GFXfont *)&FiraSans, "Test", &cursor_x, &cursor_y, framebuffer);
 
   /*//Draw buttons
-  touchutilAddButton(1, 600, 450, 120, 60, "Prev", framebuffer);
-  touchutilAddButton(2, 740, 450, 120, 60, "Next", framebuffer);*/
+  touchutilAddButton(600, 450, 120, 60, "Prev", framebuffer);
+  touchutilAddButton(740, 450, 120, 60, "Next", framebuffer);*/
 
   // Draw list box
-  char *elements[10] = {"DL-11111111111111", "DL-11111111111112", "DL-11111111111113", "DL-11111111111114", "DL-11111111111115",
-                        "DL-11111111111116", "DL-11111111111117", "DL-11111111111118", "DL-11111111111119", "DL-11111111111120"};
+  char elements[10][30];
+  for (int i = 0; i < 10; i++) {
+    sprintf(elements[i], "DL-1111111111111%d", i);
+  }
   //char *elements[10] = {"DL-11111111111111", "DL-11111111111112", "DL-11111111111113"};
   touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", framebuffer, elements, 10);
 
