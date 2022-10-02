@@ -2,7 +2,7 @@
 typedef struct buttonData {
    uint8_t id;
    Rect_t area;
-   char *text;
+   char text[30];
 } __attribute__ ((packed)) ButtonData;
 
 //#pragma pack(1)
@@ -14,8 +14,9 @@ typedef struct listBoxData {
    int elementCount;
    int elementsPerPage;
    int elementHeight;
-   int currentPageNo;
-   uint8_t buttonIdsElements[10];
-   int buttonIdUp;
-   int buttonIdDown;
+   int currentPageNo; // first page = 1
+   int pageCount;
+   uint8_t buttonIndexElements[10];
+   int buttonIndexUp;
+   int buttonIndexDown;
 } __attribute__ ((packed)) ListBoxData;

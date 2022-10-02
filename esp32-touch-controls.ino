@@ -52,8 +52,8 @@ void setup()
 
   // Draw list box
   char elements[10][30];
-  for (int i = 0; i < 10; i++) {
-    sprintf(elements[i], "DL-1111111111111%d", i);
+  for (int i = 10; i < 20; i++) {
+    sprintf(elements[i-10], "DL-111111111111%d", i);
   }
   //char *elements[10] = {"DL-11111111111111", "DL-11111111111112", "DL-11111111111113"};
   touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", framebuffer, elements, 10);
@@ -66,7 +66,7 @@ void loop()
 {
   uint16_t  x, y;
   if (digitalRead(TOUCH_INT)) {
-    touchutilCheckTouch();
+    touchutilCheckTouch(framebuffer);
     ButtonData buttonData;
     if (touchutilGetPressedButton(&buttonData)) {
       // button found -> buttonData is filled
