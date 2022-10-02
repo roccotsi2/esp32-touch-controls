@@ -52,11 +52,12 @@ void setup()
 
   // Draw list box
   char elements[10][30];
-  for (int i = 10; i < 20; i++) {
+  int count = 10;
+  for (int i = 10; i < 10 + count; i++) {
     sprintf(elements[i-10], "DL-111111111111%d", i);
   }
   //char *elements[10] = {"DL-11111111111111", "DL-11111111111112", "DL-11111111111113"};
-  touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", framebuffer, elements, 10);
+  touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", framebuffer, elements, count);
 
   epd_draw_grayscale_image(epd_full_screen(), framebuffer);
   epd_poweroff();

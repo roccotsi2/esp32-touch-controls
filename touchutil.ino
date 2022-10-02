@@ -11,11 +11,13 @@ const int HEIGHT_LIST_BOX_ELEMENT = 60;
 
 boolean touchutilAddListBox(int id, int x, int y, int width, int height, char *text, uint8_t *framebuffer, char elements[10][30], int elementCount) {
   bool success= touchutilRegisterListBox(id, x, y, width, height, text, elements, elementCount);
+  //Serial.println("ListBox registered");
   if (!success) {
     return false;
   }
 
   touchutilDrawListBox(true, framebuffer);
+  //Serial.println("ListBox drawed");
 
   /*
   // add 1 button per displayed element
@@ -36,7 +38,8 @@ boolean touchutilAddListBox(int id, int x, int y, int width, int height, char *t
 }
 
 bool touchutilRegisterListBox(int id, int x, int y, int width, int height, char *text, char elements[10][30], int elementCount) {
-  int elementsPerPage = min(height / HEIGHT_LIST_BOX_ELEMENT, elementCount);
+  //int elementsPerPage = min(height / HEIGHT_LIST_BOX_ELEMENT, elementCount);
+  int elementsPerPage = height / HEIGHT_LIST_BOX_ELEMENT;
   int elementHeight = height / elementsPerPage;
   int adpatedHeight = elementsPerPage * elementHeight;
   
@@ -132,21 +135,30 @@ void touchutilChangePageList(int newPageNo, uint8_t *framebuffer) {
 
 void touchutilDrawListBox(bool initialDraw, uint8_t *framebuffer) { 
   // add border, up/down buttons
-  epd_draw_rect(listBox.area.x, listBox.area.y, listBox.area.width, listBox.area.height, 0, framebuffer);
-  epd_draw_rect(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.height, 0, framebuffer);
+  epd_draw_rect(listBox.area.x, listBox.area.y, listBox.area.width, listBox.area.height, 0, framebuffer); // border of list box
+  //Serial.println("ListBox border drawed");
+  epd_draw_rect(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.height, 0, framebuffer); // border of scroll
+  //Serial.println("ListBox scroll border drawed");
   
   if (initialDraw) {
     // add 1 button per displayed element
-    for (int i = 0; i < listBox.elementsPerPage; i++) {
+    int count = min(listBox.elementsPerPage, listBox.elementCount);
+    for (int i = 0; i < count; i++) {
       listBox.buttonIndexElements[i] = touchutilAddButton(listBox.area.x, listBox.area.y + i*listBox.elementHeight, listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.elementHeight, listBox.elements[i], framebuffer);
     }
+    //Serial.println("ListBox buttons added");
     // add UP / DOWN buttons
     listBox.buttonIndexUp = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "^", framebuffer);
     listBox.buttonIndexDown = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y + listBox.area.height - HEIGHT_LIST_BOX_UP_DOWN_BUTTON, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "v", framebuffer);
+    //Serial.println("Up/Down buttons added");
   } else {
     // draw only the buttons
     for (int i = 0; i < listBox.elementsPerPage; i++) {
-      touchutilDrawButton(buttons[listBox.buttonIndexElements[i]], framebuffer);
+      ButtonData button = buttons[listBox.buttonIndexElements[i]];
+      if (button.text[0] != 0) {
+        // draw only button with text
+        touchutilDrawButton(button, framebuffer);
+      }
     }
     touchutilDrawButton(buttons[listBox.buttonIndexUp], framebuffer);
     touchutilDrawButton(buttons[listBox.buttonIndexDown], framebuffer);
@@ -159,7 +171,7 @@ void touchutilDrawButton(ButtonData button, uint8_t *framebuffer) {
   int text_x = button.area.x + 15;
   int text_y = button.area.y + 40;
   write_string((GFXfont *)&FiraSans, button.text, &text_x, &text_y, framebuffer);
-  Serial.println(button.text);
+  //Serial.println(button.text);
 }
 
 int touchutilAddButton(int x, int y, int width, int height, char *text, uint8_t *framebuffer) {
