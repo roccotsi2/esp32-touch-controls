@@ -46,9 +46,9 @@ void setup()
   epd_clear();
   //write_string((GFXfont *)&FiraSans, "Test", &cursor_x, &cursor_y, framebuffer);
 
-  /*//Draw buttons
-  touchutilAddButton(600, 450, 120, 60, "Prev", framebuffer);
-  touchutilAddButton(740, 450, 120, 60, "Next", framebuffer);*/
+  //Draw buttons
+  touchutilAddButton(600, 470, 120, 60, "Prev", framebuffer);
+  touchutilAddButton(740, 470, 120, 60, "Next", framebuffer);
 
   // Draw list box
   char elements[10][30];
