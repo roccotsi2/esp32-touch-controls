@@ -19,6 +19,10 @@ uint8_t *framebuffer = NULL;
 int cursor_x = 20;
 int cursor_y = 60;
 
+// variables for button + listbox
+uint16_t  x, y;
+char pressedListBoxItem[30];
+
 void setup()
 {
   Serial.begin(115200);
@@ -64,8 +68,7 @@ void setup()
 }
 
 void loop()
-{
-  uint16_t  x, y;
+{ 
   if (digitalRead(TOUCH_INT)) {
     touchutilCheckTouch(framebuffer);
     ButtonData buttonData;
@@ -76,6 +79,9 @@ void loop()
       Serial.print(" (ID = ");
       Serial.print(buttonData.id);
       Serial.println(")");
+    } else if (touchutilGetPressedListBoxItem(pressedListBoxItem, sizeof(pressedListBoxItem))) {
+      Serial.print("ListBoxItem pressed: ");
+      Serial.println(pressedListBoxItem);        
     }
   }
 }

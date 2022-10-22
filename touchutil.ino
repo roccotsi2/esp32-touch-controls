@@ -4,6 +4,8 @@ ButtonData buttons[20];
 ListBoxData listBox;
 int countButtons = 0;
 ButtonData lastPressedButton;
+char lastPressedListBoxItem[30];
+bool listBoxItemPressed = false;
 bool buttonPressed = false;
 int lastPressedButtonIndex = -1;
 
@@ -20,21 +22,6 @@ boolean touchutilAddListBox(int id, int x, int y, int width, int height, char *t
 
   touchutilDrawListBox(true, framebuffer);
   //Serial.println("ListBox drawed");
-
-  /*
-  // add 1 button per displayed element
-  for (int i = 0; i < listBox.elementsPerPage; i++) {
-    listBox.buttonIndexElements[i] = touchutilAddButton(x, y + i*listBox.elementHeight, width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.elementHeight, listBox.elements[i], framebuffer);
-  }
-
-  int adaptedHeight = listBox.area.height;
-
-  // add border, up/down buttons
-  epd_draw_rect(x, y, width, adaptedHeight, 0, framebuffer);
-  epd_draw_rect(x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, adaptedHeight, 0, framebuffer);
-  listBox.buttonIndexUp = touchutilAddButton(x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "^", framebuffer);
-  listBox.buttonIndexDown = touchutilAddButton(x + width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, y + adaptedHeight - HEIGHT_LIST_BOX_UP_DOWN_BUTTON, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "v", framebuffer);
-  */
   
   return true; // ListBox successfully created
 }
@@ -82,6 +69,7 @@ bool touchutilIsButtonIndexFromListBoxItem(uint8_t buttonIndex) {
 }
 
 void touchutilCheckListBoxButtons(uint8_t *framebuffer) {
+  listBoxItemPressed = false;
   if (buttonPressed) {
     if (lastPressedButtonIndex == listBox.buttonIndexUp) {
       // button UP pressed
@@ -97,9 +85,11 @@ void touchutilCheckListBoxButtons(uint8_t *framebuffer) {
       bool listBoxItemButtonPressed = touchutilIsButtonIndexFromListBoxItem(lastPressedButtonIndex);
       if (listBoxItemButtonPressed) {
         // item button pressed
-        Serial.print("ListBox item pressed: ");
-        Serial.println(lastPressedButton.text);
+        //Serial.print("ListBox item pressed: ");
+        //Serial.println(lastPressedButton.text);
         buttonPressed = false;
+        listBoxItemPressed = true;
+        strcpy(lastPressedListBoxItem, lastPressedButton.text);
       }
     }
   }
@@ -252,6 +242,19 @@ bool touchutilGetPressedButton(ButtonData *pressedButtonData) {
   return false; // no button found
 }
 
+bool touchutilGetPressedListBoxItem(char *buf, int count) {
+  if (!listBoxItemPressed) {
+    return false;
+  }
+  if (count < sizeof(lastPressedListBoxItem)) {
+    Serial.print("Size of buf too small, needed size: ");
+    Serial.println(sizeof(lastPressedListBoxItem));
+    return false;
+  }
+  strcpy(buf, lastPressedListBoxItem);
+  return true;
+}
+
 void touchutilWaitUntilNoPress() {
   int count = 0;
   while (count < 10) {
@@ -263,10 +266,6 @@ void touchutilWaitUntilNoPress() {
     delay(10);
   }
 }
-
-/*void touchutilClearFrameBuffer(uint8_t *framebuffer) {
-  memset(framebuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2);
-}*/
 
 void touchutilDrawScreen() {
   epd_poweron();
