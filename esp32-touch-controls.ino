@@ -10,7 +10,7 @@
 #include "firasans.h"
 #include <Wire.h>
 #include <touch.h>
-#include "datatypes.h"
+#include "touchutil_datatypes.h"
 
 #define TOUCH_INT   13
 TouchClass touch;
