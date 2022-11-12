@@ -140,12 +140,12 @@ void touchutilDrawListBox(bool initialDraw, uint8_t *framebuffer) {
     // add 1 button per displayed element
     int count = min(listBox.elementsPerPage, listBox.elementCount);
     for (int i = 0; i < count; i++) {
-      listBox.buttonIndexElements[i] = touchutilAddButton(listBox.area.x, listBox.area.y + i*listBox.elementHeight, listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.elementHeight, listBox.elements[i], framebuffer);
+      listBox.buttonIndexElements[i] = touchutilAddButton(listBox.area.x, listBox.area.y + i*listBox.elementHeight, listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.elementHeight, listBox.elements[i], true, framebuffer);
     }
     //Serial.println("ListBox buttons added");
     // add UP / DOWN buttons
-    listBox.buttonIndexUp = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "^", framebuffer);
-    listBox.buttonIndexDown = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y + listBox.area.height - HEIGHT_LIST_BOX_UP_DOWN_BUTTON, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "v", framebuffer);
+    listBox.buttonIndexUp = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "^", true, framebuffer);
+    listBox.buttonIndexDown = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y + listBox.area.height - HEIGHT_LIST_BOX_UP_DOWN_BUTTON, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "v", true, framebuffer);
     //Serial.println("Up/Down buttons added");
   } else {    
     // draw only the buttons
@@ -163,16 +163,20 @@ void touchutilDrawListBox(bool initialDraw, uint8_t *framebuffer) {
 }
 
 void touchutilDrawButton(ButtonData button, uint8_t *framebuffer) {
-  epd_draw_rect(button.area.x, button.area.y, button.area.width, button.area.height, 0, framebuffer);
-  int text_x = button.area.x + 15;
-  int text_y = button.area.y + 40;
-  write_string((GFXfont *)&FiraSans, button.text, &text_x, &text_y, framebuffer);
+  if (button.drawBorder) {
+    epd_draw_rect(button.area.x, button.area.y, button.area.width, button.area.height, 0, framebuffer);
+  }
+  if (strlen(button.text) > 0) {
+    int text_x = button.area.x + 15;
+    int text_y = button.area.y + 40;
+    write_string((GFXfont *)&FiraSans, button.text, &text_x, &text_y, framebuffer);
+  }
   //Serial.println(button.text);
 }
 
-int touchutilAddButton(int x, int y, int width, int height, char *text, uint8_t *framebuffer) {
+int touchutilAddButton(int x, int y, int width, int height, char *text, bool drawBorder, uint8_t *framebuffer) {
   // register button
-  int buttonIndex = touchutilRegisterButton(x, y, width, height, text);
+  int buttonIndex = touchutilRegisterButton(x, y, width, height, text, drawBorder);
 
   // draw button
   touchutilDrawButton(buttons[buttonIndex], framebuffer);
@@ -180,7 +184,7 @@ int touchutilAddButton(int x, int y, int width, int height, char *text, uint8_t 
   return buttonIndex;
 }
 
-int touchutilRegisterButton(int x, int y, int width, int height, char *text) {
+int touchutilRegisterButton(int x, int y, int width, int height, char *text, bool drawBorder) {
   if (countButtons >= sizeof(buttons)) {
     Serial.println("Could not register button, max size exceeded");
     return false;
@@ -194,7 +198,8 @@ int touchutilRegisterButton(int x, int y, int width, int height, char *text) {
   };
   ButtonData buttonData = {
     .id = countButtons,
-    .area = rect
+    .area = rect,
+    .drawBorder = drawBorder
   };
   strcpy(buttonData.text, text);
   int buttonIndex = countButtons;

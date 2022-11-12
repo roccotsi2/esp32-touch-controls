@@ -2,6 +2,7 @@
 typedef struct buttonData {
    uint8_t id;
    Rect_t area;
+   bool drawBorder;
    char text[30];
 } __attribute__ ((packed)) ButtonData;
 

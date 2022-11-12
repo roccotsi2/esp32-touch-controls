@@ -51,8 +51,10 @@ void setup()
   //write_string((GFXfont *)&FiraSans, "Test", &cursor_x, &cursor_y, framebuffer);
 
   //Draw buttons
-  touchutilAddButton(600, 470, 120, 60, "Prev", framebuffer);
-  touchutilAddButton(740, 470, 120, 60, "Next", framebuffer);
+  touchutilAddButton(600, 470, 120, 60, "Prev", true, framebuffer);
+  touchutilAddButton(740, 470, 120, 60, "Next", true, framebuffer);
+  touchutilAddButton(740, 370, 120, 60, "", true, framebuffer); // without text
+  touchutilAddButton(740, 270, 120, 60, "Test", false, framebuffer); // without border
 
   // Draw list box
   char elements[10][30];
