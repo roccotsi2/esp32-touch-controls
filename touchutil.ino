@@ -174,7 +174,7 @@ void touchutilDrawButton(ButtonData button, uint8_t *framebuffer) {
   //Serial.println(button.text);
 }
 
-int touchutilAddButton(int x, int y, int width, int height, char *text, bool drawBorder, uint8_t *framebuffer) {
+int touchutilAddButton(int x, int y, int width, int height, char *text, bool drawBorder, uint8_t *framebuffer) {  
   // register button
   int buttonIndex = touchutilRegisterButton(x, y, width, height, text, drawBorder);
 
@@ -197,7 +197,7 @@ int touchutilRegisterButton(int x, int y, int width, int height, char *text, boo
     .height = height
   };
   ButtonData buttonData = {
-    .id = countButtons,
+    .id = countButtons + 1, // ID starts with 1
     .area = rect,
     .drawBorder = drawBorder
   };

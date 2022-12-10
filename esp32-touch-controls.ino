@@ -53,7 +53,7 @@ void setup()
   //Draw buttons
   touchutilAddButton(600, 470, 120, 60, "Prev", true, framebuffer);
   touchutilAddButton(740, 470, 120, 60, "Next", true, framebuffer);
-  touchutilAddButton(740, 370, 120, 60, "", true, framebuffer); // without text
+  touchutilAddButton(740, 370, 120, 60, "", true, framebuffer); // without text but with border
   touchutilAddButton(740, 270, 120, 60, "Test", false, framebuffer); // without border
 
   // Draw list box
