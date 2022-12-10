@@ -85,11 +85,15 @@ void touchutilCheckListBoxButtons(uint8_t *framebuffer) {
       bool listBoxItemButtonPressed = touchutilIsButtonIndexFromListBoxItem(lastPressedButtonIndex);
       if (listBoxItemButtonPressed) {
         // item button pressed
-        //Serial.print("ListBox item pressed: ");
-        //Serial.println(lastPressedButton.text);
+        if (lastPressedButton.text[0] != 0) {
+          // assume that listbox item text is not empty
+          listBoxItemPressed = true;
+          strcpy(lastPressedListBoxItem, lastPressedButton.text);
+        } else {
+          // empty area of list box pressed
+          listBoxItemPressed = false;
+        }
         buttonPressed = false;
-        listBoxItemPressed = true;
-        strcpy(lastPressedListBoxItem, lastPressedButton.text);
       }
     }
   }
@@ -112,6 +116,7 @@ void touchutilChangePageList(int newPageNo, uint8_t *framebuffer) {
   Serial.println(endIndex);*/
   
   for (int i = startIndex; i <= endIndex; i++) {
+    // set the item texts
     int buttonIndex = listBox.buttonIndexElements[i - startIndex];
     strncpy(buttons[buttonIndex].text, listBox.elements[i], 30);
   }
@@ -225,7 +230,12 @@ void touchutilCheckTouch(uint8_t *framebuffer) {
         // fill the found pressed button
         lastPressedButton.id = buttonData.id;
         lastPressedButton.area = buttonData.area;
-        strcpy(lastPressedButton.text, buttonData.text);
+        if (buttonData.text[0] > 0) {
+          strcpy(lastPressedButton.text, buttonData.text);
+        } else {
+          // text of button is empty
+          memset(lastPressedButton.text, 0, 30);
+        }
         lastPressedButtonIndex = i;
         buttonPressed = true;
         break;
