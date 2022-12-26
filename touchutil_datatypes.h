@@ -17,7 +17,7 @@ typedef struct listBoxData {
    int elementHeight;
    int currentPageNo; // first page = 1
    int pageCount;
-   int8_t buttonIndexElements[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-   int buttonIndexUp = -1;
-   int buttonIndexDown = -1;
+   int8_t buttonIndexElements[10];
+   int buttonIndexUp;
+   int buttonIndexDown;
 } __attribute__ ((packed)) ListBoxData;

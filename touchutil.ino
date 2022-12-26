@@ -1,5 +1,6 @@
 #define COLOR_WHITE 0xF0
 
+// internal state
 ButtonData buttons[20];
 ListBoxData listBox;
 int countButtons = 0;
@@ -59,7 +60,7 @@ bool touchutilRegisterListBox(int id, int x, int y, int width, int height, char 
   return true;
 }
 
-bool touchutilIsButtonIndexFromListBoxItem(uint8_t buttonIndex) {
+bool touchutilIsButtonIndexFromListBoxItem(int buttonIndex) {
   for (int i = 0; i < 10; i++) {
     if (listBox.buttonIndexElements[i] == buttonIndex) {
       return true;
@@ -73,12 +74,12 @@ void touchutilCheckListBoxButtons(uint8_t *framebuffer) {
   if (buttonPressed) {
     if (lastPressedButtonIndex == listBox.buttonIndexUp) {
       // button UP pressed
-      Serial.println("ListBox button pressed: UP");
+      //Serial.println("ListBox button pressed: UP");
       buttonPressed = false;
       touchutilChangePageList(listBox.currentPageNo - 1, framebuffer);
     } else if (lastPressedButtonIndex == listBox.buttonIndexDown) {
       // button DOWN pressed
-      Serial.println("ListBox button pressed: DOWN");
+      //Serial.println("ListBox button pressed: DOWN");
       buttonPressed = false;
       touchutilChangePageList(listBox.currentPageNo + 1, framebuffer);
     } else {
@@ -192,7 +193,7 @@ int touchutilAddButton(int x, int y, int width, int height, char *text, bool dra
 int touchutilRegisterButton(int x, int y, int width, int height, char *text, bool drawBorder) {
   if (countButtons >= sizeof(buttons)) {
     Serial.println("Could not register button, max size exceeded");
-    return false;
+    return -1;
   }
 
   Rect_t rect = {
@@ -282,9 +283,69 @@ void touchutilWaitUntilNoPress() {
   }
 }
 
+int touchutilGetButtonIdByIndex(int index) {
+  /*Serial.print("touchutilGetButtonIdByIndex: index: ");
+  Serial.println(index);*/
+  if (index < 0 || index >= sizeof(buttons)) {
+    // invalid index
+    return -1;
+  }
+  return buttons[index].id;
+}
+
 void touchutilDrawScreen() {
   epd_poweron();
   epd_clear();
   epd_draw_grayscale_image(epd_full_screen(), framebuffer);
   epd_poweroff();
+}
+
+void touchutilInitializeRect(Rect_t rect) {
+  rect.x = 0;
+  rect.y = 0;
+  rect.width = 0;
+  rect.height = 0;
+}
+
+void touchutilInitializeButton(ButtonData button) {
+  button.id = 0;
+  touchutilInitializeRect(button.area);
+  button.drawBorder = false;
+  memset(button.text, 0, sizeof(button.text));
+}
+
+void touchutilInitializeListBox(ListBoxData listBox) {
+  listBox.id = 0;
+  touchutilInitializeRect(listBox.area);
+  listBox.text = NULL;
+  memset(listBox.elements, 0, sizeof(listBox.elements));
+  listBox.elementCount = 0;
+  listBox.elementsPerPage = 0;
+  listBox.elementHeight = 0;
+  listBox.currentPageNo = 0;
+  listBox.pageCount = 0;
+  memset(listBox.buttonIndexElements, 0, sizeof(listBox.buttonIndexElements));
+  listBox.buttonIndexUp = 0;
+  listBox.buttonIndexDown = 0;
+}
+
+/**
+ * Initializes all internal variables and clears prvious state
+ */
+void touchutilInitialize() {
+  for (int i = 0; i < sizeof(buttons); i++) {
+    touchutilInitializeButton(buttons[i]);
+  }
+  touchutilInitializeListBox(listBox);
+  countButtons = 0;
+  touchutilInitializeButton(lastPressedButton);
+  memset(lastPressedListBoxItem, 0, sizeof(lastPressedListBoxItem));
+  listBoxItemPressed = false;
+  buttonPressed = false;
+  lastPressedButtonIndex = -1;
+
+  //Initialize listbox special values (that differs from 0)
+  memset(listBox.buttonIndexElements, -1, sizeof(listBox.buttonIndexElements)); 
+  listBox.buttonIndexUp = -1;
+  listBox.buttonIndexDown = -1;
 }
