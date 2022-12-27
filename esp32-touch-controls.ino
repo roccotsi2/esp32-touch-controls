@@ -14,7 +14,7 @@
 
 #define TOUCH_INT   13
 TouchClass touch;
-uint8_t *framebuffer = NULL;
+uint8_t *frameBuffer = NULL;
 
 int currentPageNo = 1;
 int maxPageNo = 5;
@@ -41,8 +41,8 @@ void setup()
   Serial.println("Started Touchscreen poll...");
 
 
-  framebuffer = (uint8_t *)ps_calloc(sizeof(uint8_t), EPD_WIDTH * EPD_HEIGHT / 2);
-  if (!framebuffer) {
+  frameBuffer = (uint8_t *)ps_calloc(sizeof(uint8_t), EPD_WIDTH * EPD_HEIGHT / 2);
+  if (!frameBuffer) {
     Serial.println("alloc memory failed !!!");
     while (1);
   }
@@ -54,22 +54,22 @@ void displayPage(int pageNo) {
   /*Serial.print("displayPage: ");
   Serial.println(pageNo);*/
   if (pageNo > 0 && pageNo <= maxPageNo) {
-    memset(framebuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2); // clear frame buffer
+    memset(frameBuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2); // clear frame buffer
     touchutilInitialize();
 
     char pageText[10];
     sprintf(pageText, "Page %d:", pageNo);
     int cursor_x = 20;
     int cursor_y = 40;
-    write_string((GFXfont *)&FiraSans, pageText, &cursor_x, &cursor_y, framebuffer);
+    write_string((GFXfont *)&FiraSans, pageText, &cursor_x, &cursor_y, frameBuffer);
   
     //Draw buttons
-    buttonIdPrev = touchutilGetButtonIdByIndex(touchutilAddButton(600, 470, 120, 60, "Prev", true, framebuffer));
+    buttonIdPrev = touchutilGetButtonIdByIndex(touchutilAddButton(600, 470, 120, 60, "Prev", true, frameBuffer));
     /*Serial.print("buttonIdPrev: ");
     Serial.println(buttonIdPrev);*/
-    buttonIdNext = touchutilGetButtonIdByIndex(touchutilAddButton(740, 470, 120, 60, "Next", true, framebuffer));
-    touchutilAddButton(740, 370, 120, 60, "", true, framebuffer); // without text but with border
-    touchutilAddButton(740, 270, 120, 60, "Test", false, framebuffer); // without border
+    buttonIdNext = touchutilGetButtonIdByIndex(touchutilAddButton(740, 470, 120, 60, "Next", true, frameBuffer));
+    touchutilAddButton(740, 370, 120, 60, "", true, frameBuffer); // without text but with border
+    touchutilAddButton(740, 270, 120, 60, "Test", false, frameBuffer); // without border
   
     // Draw list box
     char elements[10][30];
@@ -77,11 +77,11 @@ void displayPage(int pageNo) {
     for (int i = 10; i < 10 + count; i++) {
       sprintf(elements[i-10], "DL-111111111111%d", i);
     }
-    touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", framebuffer, elements, count);
+    touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", frameBuffer, elements, count);
 
     epd_poweron();
     epd_clear();
-    epd_draw_grayscale_image(epd_full_screen(), framebuffer);
+    epd_draw_grayscale_image(epd_full_screen(), frameBuffer);
     epd_poweroff();
     
     currentPageNo = pageNo;
@@ -91,7 +91,7 @@ void displayPage(int pageNo) {
 void loop()
 { 
   if (digitalRead(TOUCH_INT)) {
-    touchutilCheckTouch(framebuffer);
+    touchutilCheckTouch(frameBuffer);
     ButtonData buttonData;
     if (touchutilGetPressedButton(&buttonData)) {
       // button found -> buttonData is filled

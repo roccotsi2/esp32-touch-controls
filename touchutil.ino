@@ -14,14 +14,14 @@ const byte WIDTH_LIST_BOX_UP_DOWN_BUTTON = 50;
 const byte HEIGHT_LIST_BOX_UP_DOWN_BUTTON = 50;
 const int HEIGHT_LIST_BOX_ELEMENT = 60;
 
-boolean touchutilAddListBox(int id, int x, int y, int width, int height, char *text, uint8_t *framebuffer, char elements[10][30], int elementCount) {
+boolean touchutilAddListBox(int id, int x, int y, int width, int height, char *text, uint8_t *frameBuffer, char elements[10][30], int elementCount) {
   bool success = touchutilRegisterListBox(id, x, y, width, height, text, elements, elementCount);
   //Serial.println("ListBox registered");
   if (!success) {
     return false;
   }
 
-  touchutilDrawListBox(true, framebuffer);
+  touchutilDrawListBox(true, frameBuffer);
   //Serial.println("ListBox drawed");
   
   return true; // ListBox successfully created
@@ -69,19 +69,19 @@ bool touchutilIsButtonIndexFromListBoxItem(int buttonIndex) {
   return false;
 }
 
-void touchutilCheckListBoxButtons(uint8_t *framebuffer) {
+void touchutilCheckListBoxButtons(uint8_t *frameBuffer) {
   listBoxItemPressed = false;
   if (buttonPressed) {
     if (lastPressedButtonIndex == listBox.buttonIndexUp) {
       // button UP pressed
       //Serial.println("ListBox button pressed: UP");
       buttonPressed = false;
-      touchutilChangePageList(listBox.currentPageNo - 1, framebuffer);
+      touchutilChangePageList(listBox.currentPageNo - 1, frameBuffer);
     } else if (lastPressedButtonIndex == listBox.buttonIndexDown) {
       // button DOWN pressed
       //Serial.println("ListBox button pressed: DOWN");
       buttonPressed = false;
-      touchutilChangePageList(listBox.currentPageNo + 1, framebuffer);
+      touchutilChangePageList(listBox.currentPageNo + 1, frameBuffer);
     } else {
       bool listBoxItemButtonPressed = touchutilIsButtonIndexFromListBoxItem(lastPressedButtonIndex);
       if (listBoxItemButtonPressed) {
@@ -100,7 +100,7 @@ void touchutilCheckListBoxButtons(uint8_t *framebuffer) {
   }
 }
 
-void touchutilChangePageList(int newPageNo, uint8_t *framebuffer) {
+void touchutilChangePageList(int newPageNo, uint8_t *frameBuffer) {
   if (newPageNo < 1 || listBox.pageCount < newPageNo) {
     // start or end reached -> nothing to do
     return;
@@ -127,31 +127,31 @@ void touchutilChangePageList(int newPageNo, uint8_t *framebuffer) {
     memset(buttons[buttonIndex].text, 0, 30);
   }
 
-  touchutilDrawListBox(false, framebuffer);
+  touchutilDrawListBox(false, frameBuffer);
 }
 
-void touchutilDrawListBox(bool initialDraw, uint8_t *framebuffer) { 
+void touchutilDrawListBox(bool initialDraw, uint8_t *frameBuffer) { 
   if (!initialDraw) {
     // first clear the area of the list box if this is not the first time it gets drawed
-    epd_fill_rect(listBox.area.x, listBox.area.y, listBox.area.width, listBox.area.height, COLOR_WHITE, framebuffer);
+    epd_fill_rect(listBox.area.x, listBox.area.y, listBox.area.width, listBox.area.height, COLOR_WHITE, frameBuffer);
   }
   
   // add border, up/down buttons
-  epd_draw_rect(listBox.area.x, listBox.area.y, listBox.area.width, listBox.area.height, 0, framebuffer); // border of list box
+  epd_draw_rect(listBox.area.x, listBox.area.y, listBox.area.width, listBox.area.height, 0, frameBuffer); // border of list box
   //Serial.println("ListBox border drawed");
-  epd_draw_rect(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.height, 0, framebuffer); // border of scroll
+  epd_draw_rect(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.height, 0, frameBuffer); // border of scroll
   //Serial.println("ListBox scroll border drawed");
   
   if (initialDraw) {
     // add 1 button per displayed element
     int count = min(listBox.elementsPerPage, listBox.elementCount);
     for (int i = 0; i < count; i++) {
-      listBox.buttonIndexElements[i] = touchutilAddButton(listBox.area.x, listBox.area.y + i*listBox.elementHeight, listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.elementHeight, listBox.elements[i], true, framebuffer);
+      listBox.buttonIndexElements[i] = touchutilAddButton(listBox.area.x, listBox.area.y + i*listBox.elementHeight, listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.elementHeight, listBox.elements[i], true, frameBuffer);
     }
     //Serial.println("ListBox buttons added");
     // add UP / DOWN buttons
-    listBox.buttonIndexUp = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "^", true, framebuffer);
-    listBox.buttonIndexDown = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y + listBox.area.height - HEIGHT_LIST_BOX_UP_DOWN_BUTTON, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "v", true, framebuffer);
+    listBox.buttonIndexUp = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "^", true, frameBuffer);
+    listBox.buttonIndexDown = touchutilAddButton(listBox.area.x + listBox.area.width - WIDTH_LIST_BOX_UP_DOWN_BUTTON, listBox.area.y + listBox.area.height - HEIGHT_LIST_BOX_UP_DOWN_BUTTON, WIDTH_LIST_BOX_UP_DOWN_BUTTON, HEIGHT_LIST_BOX_UP_DOWN_BUTTON, "v", true, frameBuffer);
     //Serial.println("Up/Down buttons added");
   } else {    
     // draw only the buttons
@@ -159,33 +159,33 @@ void touchutilDrawListBox(bool initialDraw, uint8_t *framebuffer) {
       ButtonData button = buttons[listBox.buttonIndexElements[i]];
       if (button.text[0] != 0) {
         // draw only button with text
-        touchutilDrawButton(button, framebuffer);
+        touchutilDrawButton(button, frameBuffer);
       }
     }
-    touchutilDrawButton(buttons[listBox.buttonIndexUp], framebuffer);
-    touchutilDrawButton(buttons[listBox.buttonIndexDown], framebuffer);
+    touchutilDrawButton(buttons[listBox.buttonIndexUp], frameBuffer);
+    touchutilDrawButton(buttons[listBox.buttonIndexDown], frameBuffer);
     touchutilDrawScreen();
   }
 }
 
-void touchutilDrawButton(ButtonData button, uint8_t *framebuffer) {
+void touchutilDrawButton(ButtonData button, uint8_t *frameBuffer) {
   if (button.drawBorder) {
-    epd_draw_rect(button.area.x, button.area.y, button.area.width, button.area.height, 0, framebuffer);
+    epd_draw_rect(button.area.x, button.area.y, button.area.width, button.area.height, 0, frameBuffer);
   }
   if (strlen(button.text) > 0) {
     int text_x = button.area.x + 15;
     int text_y = button.area.y + 40;
-    write_string((GFXfont *)&FiraSans, button.text, &text_x, &text_y, framebuffer);
+    write_string((GFXfont *)&FiraSans, button.text, &text_x, &text_y, frameBuffer);
   }
   //Serial.println(button.text);
 }
 
-int touchutilAddButton(int x, int y, int width, int height, char *text, bool drawBorder, uint8_t *framebuffer) {  
+int touchutilAddButton(int x, int y, int width, int height, char *text, bool drawBorder, uint8_t *frameBuffer) {  
   // register button
   int buttonIndex = touchutilRegisterButton(x, y, width, height, text, drawBorder);
 
   // draw button
-  touchutilDrawButton(buttons[buttonIndex], framebuffer);
+  touchutilDrawButton(buttons[buttonIndex], frameBuffer);
   
   return buttonIndex;
 }
@@ -214,7 +214,7 @@ int touchutilRegisterButton(int x, int y, int width, int height, char *text, boo
   return buttonIndex;
 }
 
-void touchutilCheckTouch(uint8_t *framebuffer) {
+void touchutilCheckTouch(uint8_t *frameBuffer) {
   buttonPressed = false; // reset
 
   // check for pressed button
@@ -244,7 +244,7 @@ void touchutilCheckTouch(uint8_t *framebuffer) {
     }
   }
 
-  touchutilCheckListBoxButtons(framebuffer);
+  touchutilCheckListBoxButtons(frameBuffer);
 }
 
 bool touchutilGetPressedButton(ButtonData *pressedButtonData) {
@@ -296,7 +296,7 @@ int touchutilGetButtonIdByIndex(int index) {
 void touchutilDrawScreen() {
   epd_poweron();
   epd_clear();
-  epd_draw_grayscale_image(epd_full_screen(), framebuffer);
+  epd_draw_grayscale_image(epd_full_screen(), frameBuffer);
   epd_poweroff();
 }
 
