@@ -51,9 +51,8 @@ void setup()
 }
 
 void displayPage(int pageNo) {
-  /*Serial.print("displayPage: ");
-  Serial.println(pageNo);*/
   if (pageNo > 0 && pageNo <= maxPageNo) {
+    // display general elements
     memset(frameBuffer, 0xFF, EPD_WIDTH * EPD_HEIGHT / 2); // clear frame buffer
     touchutilInitialize();
 
@@ -68,23 +67,31 @@ void displayPage(int pageNo) {
     /*Serial.print("buttonIdPrev: ");
     Serial.println(buttonIdPrev);*/
     buttonIdNext = touchutilGetButtonIdByIndex(touchutilAddButton(740, 470, 120, 60, "Next", true, frameBuffer));
-    touchutilAddButton(740, 370, 120, 60, "", true, frameBuffer); // without text but with border
-    touchutilAddButton(740, 270, 120, 60, "Test", false, frameBuffer); // without border
-  
-    // Draw list box
-    char elements[10][30];
-    int count = 10;
-    for (int i = 10; i < 10 + count; i++) {
-      sprintf(elements[i-10], "DL-111111111111%d", i);
-    }
-    touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", frameBuffer, elements, count);
 
+    // display specific page elements
+    if (pageNo == 1) {
+      touchutilAddButton(740, 370, 120, 60, "", true, frameBuffer); // without text but with border
+      touchutilAddButton(740, 270, 120, 60, "Test", false, frameBuffer); // without border
+    
+      // Draw list box
+      char elements[10][30];
+      int count = 10;
+      for (int i = 10; i < 10 + count; i++) {
+        sprintf(elements[i-10], "DL-111111111111%d", i);
+      }
+      touchutilAddListBox(1, 100, 60, 600, 400, "Liste:", frameBuffer, elements, count);
+    } else if (pageNo == 2) {
+      touchutilAddNumberEntry(1, 100, 60, 600, 400, frameBuffer);
+    } else {
+      // all other pages
+    }
+
+    //draw content
     epd_poweron();
     epd_clear();
     epd_draw_grayscale_image(epd_full_screen(), frameBuffer);
     epd_poweroff();
-    
-    currentPageNo = pageNo;
+    currentPageNo = pageNo; 
   }
 }
 
@@ -108,6 +115,10 @@ void loop()
         if (currentPageNo > 1) {
           displayPage(--currentPageNo);
         }
+      } else if (touchutilIsNumberEntryOkButtonPressed()) {
+        int value = touchutilNumberEntryGetValue();
+        Serial.print("Ok Button pressed, entered value: ");
+        Serial.println(String(value));
       }
     } else if (touchutilGetPressedListBoxItem(pressedListBoxItem, sizeof(pressedListBoxItem))) {
       Serial.print("ListBoxItem pressed: ");
